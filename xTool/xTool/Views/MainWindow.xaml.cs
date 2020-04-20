@@ -26,14 +26,13 @@ namespace xTool.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        //MainData mainData;
-        //string inputData;
+        int xLocal = 0, yLocal = 0;
         int index = 0;
+        int total, pending, error, completed;
         public MainWindow()
         {
             InitializeComponent();
             this.DataContext = this;
-
         }
 
         private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -43,7 +42,8 @@ namespace xTool.Views
 
         private void btnPaste_Click(object sender, RoutedEventArgs e)
         {
-            string[] accounts = Regex.Split(((DataObject)Clipboard.GetDataObject()).GetData(DataFormats.Text).ToString().TrimEnd("\r\n".ToCharArray()), "\r\n");
+            string tokens = Clipboard.GetText(TextDataFormat.UnicodeText);
+            string[] accounts = Regex.Split(tokens, "\r\n");
             foreach (string acc in accounts)
             {
                 try
@@ -57,8 +57,20 @@ namespace xTool.Views
 
                 }
             }
+            total = index;
+            UpdateSummary();
         }
-
+        private void UpdateSummary()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                pending = total - (completed + error);
+                tblTotal.Text = total.ToString();
+                tblPending.Text = pending.ToString();
+                tblError.Text = error.ToString();
+                tblCompleted.Text = completed.ToString();
+            }, System.Windows.Threading.DispatcherPriority.Background);
+        }
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
             var accounts = dgAccount.Items;
@@ -70,12 +82,11 @@ namespace xTool.Views
                 {
                     tasks[i++] = Task.Factory.StartNew(() =>
                     {
-
                         var acc = item as MainData;
 
                         ChromeDriver chromeDriver;
                         ChromeOptions options = new ChromeOptions();
-                        options.AddArguments("--disable-notifications", "--window-size=" + Convert.ToString(450) + "," + Convert.ToString(700), "--window-position=0,0", "--no-sandbox");
+                        options.AddArguments($"--disable-notifications", "--window-size=" + Convert.ToString(620) + "," + Convert.ToString(420), "--window-position=" + Convert.ToString(xLocal += 50) + "," + Convert.ToString(yLocal += 20), "--no-sandbox");
                         options.AddArgument("disable-infobars");
                         ChromeDriverService defaultService = ChromeDriverService.CreateDefaultService();
                         defaultService.HideCommandPromptWindow = true;
@@ -98,13 +109,31 @@ namespace xTool.Views
                 catch (Exception ex)
                 {
                 }
-                //finally { i++; }
+                //finally
+                //{
+                //    i++; 
+                //    xLocal += 50;
+                //    yLocal += 20;
+                //}
             }
             Task.WaitAll();
         }
 
+        public void ChangeStatus(int rowIndex, string status, string color)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                var row = (DataGridRow)dgAccount.ItemContainerGenerator.ContainerFromIndex(rowIndex);
+                MainData mainData = row.Item as MainData;
+                dgAccount.Items.RemoveAt(rowIndex);
+                mainData.Status = status;
+                mainData.Color = color;
+                dgAccount.Items.Insert(rowIndex, mainData);
+            }, System.Windows.Threading.DispatcherPriority.Background);
+        }
         private void DoWork(ChromeDriver chromeDriver, MainData mainData)
         {
+            ChangeStatus(mainData.Id - 1, "Đang khởi tạo...", "Orange");
             WebDriverWait wait = new WebDriverWait(chromeDriver, TimeSpan.FromMilliseconds(50000));
             chromeDriver.Url = "http://2fa.live";
             chromeDriver.Navigate();
@@ -116,12 +145,15 @@ namespace xTool.Views
             var submit = chromeDriver.FindElementById("submit");
             submit.Click();
 
+            ChangeStatus(mainData.Id - 1, "Chờ Token", "Orange");
             Thread.Sleep(3000);
             var output = chromeDriver.FindElementById("output");
 
             string oValue = output.GetAttribute("value");
             string[] outputs = oValue.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
             string oString = outputs[1];
+
+            ChangeStatus(mainData.Id - 1, "Đăng nhập FB", "Orange");
 
             chromeDriver.Url = "https://m.facebook.com/";
             chromeDriver.Navigate();
@@ -152,11 +184,21 @@ namespace xTool.Views
             var continueButton = chromeDriver.FindElementById("checkpointSubmitButton-actual-button");
             continueButton.Click();
 
+            ChangeStatus(mainData.Id - 1, "Thêm thẻ", "Orange");
             chromeDriver.Url = "https://www.facebook.com/ads/manager/account_settings/account_billing";
             chromeDriver.Navigate();
 
-            var addPaymentMethod = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//*[@id='globalContainer']/div/div/div/div/div/div/div/div/div/div/div/div/div/button")));
-            addPaymentMethod.Click();
+            try
+            {
+                var addPaymentMethod = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//*[@id='globalContainer']/div/div/div/div/div/div/div/div/div/div/div/div/div/button")));
+                addPaymentMethod.Click();
+            }
+            catch (Exception ex)
+            {
+                ChangeStatus(mainData.Id - 1, "Thêm thẻ", "Red");
+                error++;
+                UpdateSummary();
+            }
 
             ////*[@id="u_i_4"]/div/div[4]/div[1]/label/input
             var creditCardNumber = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//*[@id='AdsPaymentsFlowForm']/div/div/div/div/div/div[4]/div[1]/label/input")));
@@ -174,6 +216,7 @@ namespace xTool.Views
             var csc = chromeDriver.FindElement(By.XPath("//*[@id='AdsPaymentsFlowForm']/div/div/div/div/div/div[6]/div[1]/label/input"));
             csc.SendKeys(mainData.CardCode);
 
+            Thread.Sleep(1000);
             var continueConfirm = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//*[@id='XPaymentDialogFooter']/table/tbody/tr/td/div/div/button")));
             continueConfirm.Click();
 
@@ -187,6 +230,7 @@ namespace xTool.Views
             //Thread.Sleep(3000);
             //CheckAlert();
 
+            ChangeStatus(mainData.Id - 1, "Kết bạn", "Orange");
             var m = chromeDriver.ExecuteScript($"console.log(document.title);");
             chromeDriver.SwitchTo().Window(chromeDriver.WindowHandles.Last());
 
@@ -197,11 +241,11 @@ namespace xTool.Views
             }
             catch (Exception ex)
             {
-                
             }
 
             if (CheckBeingFriend(chromeDriver, mainData, wait))
             {
+                ChangeStatus(mainData.Id - 1, "Thêm quyền", "Orange");
                 chromeDriver.Url = "https://www.facebook.com/ads/manager/account_settings/information";
                 chromeDriver.Navigate();
                 wait.Until(d => ((IJavaScriptExecutor)chromeDriver).ExecuteScript("return document.readyState").Equals("complete"));
@@ -232,15 +276,19 @@ namespace xTool.Views
                 var confirmBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[9]/div[2]/div/div/form/div[3]/button")));
                 confirmBtn.Click();
 
-                wait.Until(d => ((IJavaScriptExecutor)chromeDriver).ExecuteScript("return document.readyState").Equals("complete")); 
+                wait.Until(d => ((IJavaScriptExecutor)chromeDriver).ExecuteScript("return document.readyState").Equals("complete"));
                 Thread.Sleep(1500);
                 var closeBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[11]/div[2]/div/div/div/div[3]/a")));
                 closeBtn.Click();
+                ChangeStatus(mainData.Id - 1, "Hoàn thành", "Green");
+                completed++;
+                UpdateSummary();
             }
         }
 
         private bool CheckBeingFriend(ChromeDriver chromeDriver, MainData mainData, WebDriverWait wait)
         {
+            ChangeStatus(mainData.Id - 1, "Chờ chấp nhận", "Orange");
             Thread.Sleep(5000);
             chromeDriver.Navigate().Refresh();
             try
@@ -270,6 +318,22 @@ namespace xTool.Views
                 //exception handling
             }
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            var response = MessageBox.Show("Bạn chắc chắn muốn thoát chương trình?", "Xác nhận",
+                                   MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+            if (response == MessageBoxResult.No)
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+                //Application.Current.Shutdown();
+                System.Diagnostics.Process.GetCurrentProcess().Kill();
+            }
+        }
+
         private void btnDeleteAll_Click(object sender, RoutedEventArgs e)
         {
             dgAccount.Items.Clear();

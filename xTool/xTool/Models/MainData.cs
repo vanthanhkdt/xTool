@@ -33,7 +33,7 @@ namespace xTool.Models
             this.CardCode = tokens[6];
             this.AdsAddress = tokens[7];
             this.AdsName = tokens[8];
-            this.Status = "Starting";
+            this.Status = "Đang chờ";
             this.Color = "Black";
         }
     }

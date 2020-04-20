@@ -10,7 +10,8 @@
         Width="1024" 
         WindowStartupLocation="CenterScreen"
         Icon="/Assets/facebook.png"
-        Title="Công cụ Quảng cáo Facebook Tự động">
+        Title="Công cụ Quảng cáo Facebook Tự động"
+        Closing="Window_Closing">
     <Grid Background="#FF44325F" MouseLeftButtonDown="Grid_MouseLeftButtonDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="100"/>
@@ -24,19 +25,19 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <StackPanel VerticalAlignment="Bottom">
                     <TextBlock Text="TỔNG" Margin="10 0" FontSize="16" FontWeight="Bold" Foreground="#FF2A6088" />
-                    <TextBlock Text="20" HorizontalAlignment="Center" Margin="5 0 5 5" FontSize="16" Foreground="#FF2A6088"/>
+                    <TextBlock Name="tblTotal" Text="20" HorizontalAlignment="Center" Margin="5 0 5 5" FontSize="16" Foreground="#FF2A6088"/>
                 </StackPanel>
                 <StackPanel VerticalAlignment="Bottom">
                     <TextBlock Text="ĐANG CHỜ" Margin="10 0" FontSize="16" FontWeight="Bold" Foreground="#F57F17"/>
-                    <TextBlock Text="9" HorizontalAlignment="Center" Margin="5 0 5 5" FontSize="16" Foreground="#F57F17"/>
+                    <TextBlock Name="tblPending" Text="9" HorizontalAlignment="Center" Margin="5 0 5 5" FontSize="16" Foreground="#F57F17"/>
                 </StackPanel>
                 <StackPanel VerticalAlignment="Bottom">
                     <TextBlock Text="LỖI" Margin="10 0" FontSize="16" FontWeight="Bold" Foreground="#B71C1C"/>
-                    <TextBlock Text="0" HorizontalAlignment="Center" Margin="5 0 5 5" FontSize="16" Foreground="#B71C1C"/>
+                    <TextBlock Name="tblError" Text="0" HorizontalAlignment="Center" Margin="5 0 5 5" FontSize="16" Foreground="#B71C1C"/>
                 </StackPanel>
                 <StackPanel VerticalAlignment="Bottom">
                     <TextBlock Text="HOÀN THÀNH" Margin="10 0" FontSize="16" FontWeight="Bold" Foreground="#009688"/>
-                    <TextBlock Text="11" HorizontalAlignment="Center" Margin="5 0 5 5" FontSize="16" Foreground="#009688"/>
+                    <TextBlock x:Name="tblCompleted" Text="11" HorizontalAlignment="Center" Margin="5 0 5 5" FontSize="16" Foreground="#009688"/>
                 </StackPanel>
             </StackPanel>
 
@@ -47,7 +48,7 @@
                 <Button Name="btnModel" ToolTip="Chọn tập tin Model" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Margin="10 0 0 0">
                     <materialDesign:PackIcon Kind="FolderCogOutline" Foreground="White" Width="32" Height="32"/>
                 </Button>
-                <Button Name="btnStart" ToolTip="Bắt đầu / Tiếp tục" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Margin="10 0 0 0" Click="btnStart_Click">
+                <Button Name="btnStart" ToolTip="Bắt đầu" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Margin="10 0 0 0" Click="btnStart_Click">
                     <materialDesign:PackIcon Kind="Play" Foreground="Blue" Width="32" Height="32"/>
                 </Button>
                 <Button Name="btnStop" ToolTip="Dừng" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" Margin="10 0 0 0">
@@ -74,7 +75,7 @@
                         <Setter Property="BorderBrush" Value="Gray"/>
                         <Setter Property="FontSize" Value="14"/>
                         <Setter Property="FontWeight" Value="Bold"/>
-                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="BorderThickness" Value="0.5"/>
                         <Setter Property="Foreground" Value="#FFFFFFFF"/>
                         <Setter Property="Background" Value="#FF44325F"/>
                     </Style>
@@ -83,6 +84,8 @@
                     <Style TargetType="DataGridCell">
                         <Setter Property="Height" Value="28"/>
                         <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="BorderBrush" Value="Gray"/>
+                        <Setter Property="BorderThickness" Value="0.5"/>
                         <Setter Property="Foreground" Value="Black"/>
                         <Setter Property="Background" Value="White"/>
                         <Style.Triggers>
@@ -91,6 +94,9 @@
                             </DataTrigger>
                             <DataTrigger Binding="{Binding Path = Color}" Value="Yellow">
                                 <Setter Property="Foreground" Value="Yellow"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path = Color}" Value="Orange">
+                                <Setter Property="Foreground" Value="DarkOrange"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding Path = Color}" Value="Blue">
                                 <Setter Property="Foreground" Value="Blue"/>

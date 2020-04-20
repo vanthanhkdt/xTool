@@ -3,9 +3,13 @@ E:\Works\xTool\xTool\xTool\bin\Release\xTool.exe
 E:\Works\xTool\xTool\xTool\bin\Release\xTool.pdb
 E:\Works\xTool\xTool\xTool\bin\Release\MaterialDesignColors.dll
 E:\Works\xTool\xTool\xTool\bin\Release\MaterialDesignThemes.Wpf.dll
+E:\Works\xTool\xTool\xTool\bin\Release\WebDriver.dll
+E:\Works\xTool\xTool\xTool\bin\Release\WebDriver.Support.dll
 E:\Works\xTool\xTool\xTool\bin\Release\MaterialDesignColors.pdb
 E:\Works\xTool\xTool\xTool\bin\Release\MaterialDesignThemes.Wpf.pdb
 E:\Works\xTool\xTool\xTool\bin\Release\MaterialDesignThemes.Wpf.xml
+E:\Works\xTool\xTool\xTool\bin\Release\WebDriver.xml
+E:\Works\xTool\xTool\xTool\bin\Release\WebDriver.Support.xml
 E:\Works\xTool\xTool\xTool\obj\Release\Views\MainWindow.g.cs
 E:\Works\xTool\xTool\xTool\obj\Release\App.g.cs
 E:\Works\xTool\xTool\xTool\obj\Release\xTool_MarkupCompile.cache
@@ -19,7 +23,3 @@ E:\Works\xTool\xTool\xTool\obj\Release\xTool.csproj.CoreCompileInputs.cache
 E:\Works\xTool\xTool\xTool\obj\Release\xTool.csproj.CopyComplete
 E:\Works\xTool\xTool\xTool\obj\Release\xTool.exe
 E:\Works\xTool\xTool\xTool\obj\Release\xTool.pdb
-E:\Works\xTool\xTool\xTool\bin\Release\WebDriver.dll
-E:\Works\xTool\xTool\xTool\bin\Release\WebDriver.Support.dll
-E:\Works\xTool\xTool\xTool\bin\Release\WebDriver.xml
-E:\Works\xTool\xTool\xTool\bin\Release\WebDriver.Support.xml
